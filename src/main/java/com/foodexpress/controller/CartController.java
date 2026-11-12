@@ -67,10 +67,7 @@ public class CartController {
             redirectAttributes.addFlashAttribute("errorMessage", "Food item not found.");
         }
 
-        String referer = request.getHeader("Referer");
-        if (referer != null && !referer.isBlank() && !referer.contains("/login")) {
-            return "redirect:" + referer;
-        }
+        // Navigate customer directly to shopping cart to view their order and proceed to checkout
         return "redirect:/cart";
     }
 

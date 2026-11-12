@@ -90,10 +90,13 @@
                 </form>
             </div>
 
-            <!-- Continue Shopping Link -->
-            <div style="margin-top: 24px;">
+            <!-- Action Row -->
+            <div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; border-top: 1px solid var(--border-color); padding-top: 16px;">
                 <a th:href="@{/menu}" style="color: var(--primary); font-weight: 700; font-size: 0.95rem;">
                     &larr; Add More Items from Menu
+                </a>
+                <a th:if="${!cart.hasUnavailableItems()}" th:href="@{/checkout}" class="btn btn-primary" style="font-weight: 800; padding: 10px 24px;">
+                    Proceed to Checkout &rarr;
                 </a>
             </div>
         </div>
@@ -167,8 +170,8 @@
 
             <!-- Proceed Button -->
             <div style="margin-top: 24px;">
-                <a th:if="${!cart.hasUnavailableItems()}" th:href="@{/checkout}" class="btn btn-primary btn-block btn-lg">
-                    Proceed to Checkout &rarr;
+                <a th:if="${!cart.hasUnavailableItems()}" th:href="@{/checkout}" class="btn btn-primary btn-block btn-lg" style="font-size: 1.1rem; font-weight: 800; padding: 14px; box-shadow: 0 4px 14px rgba(255, 71, 87, 0.4); text-align: center; display: block;">
+                    🔒 Proceed to Checkout &rarr;
                 </a>
                 <button th:if="${cart.hasUnavailableItems()}" disabled class="btn btn-secondary btn-block btn-lg" style="opacity: 0.6; cursor: not-allowed;">
                     Cannot Checkout with Out of Stock Items

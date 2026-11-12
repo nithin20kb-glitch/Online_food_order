@@ -27,13 +27,16 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+        org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler handler =
+                new org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler();
+        handler.setDefaultTargetUrl("/");
         return (request, response, authentication) -> {
             boolean isAdmin = authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_ADMIN"));
             if (isAdmin) {
                 response.sendRedirect(request.getContextPath() + "/admin/dashboard");
             } else {
-                response.sendRedirect(request.getContextPath() + "/");
+                handler.onAuthenticationSuccess(request, response, authentication);
             }
         };
     }

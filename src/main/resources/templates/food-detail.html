@@ -117,6 +117,21 @@
     </div>
 </div>
 
+<!-- Floating Sticky Cart & Checkout Bar (visible whenever cart has items) -->
+<div th:if="${cartItemCount != null and cartItemCount > 0}"
+     style="position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #0f172a; color: white; padding: 14px 28px; border-radius: 9999px; box-shadow: 0 12px 30px rgba(0,0,0,0.35); display: flex; align-items: center; gap: 20px; z-index: 9999; border: 2px solid var(--primary);">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.4rem;">🛒</span>
+        <div>
+            <strong style="color: white; font-size: 1rem;"><span th:text="${cartItemCount}">1</span> Item(s) in Cart</strong>
+            <span style="color: #94a3b8; font-size: 0.8rem; display: block;">Items ready to order</span>
+        </div>
+    </div>
+    <a th:href="@{/cart}" class="btn btn-primary" style="padding: 10px 22px; border-radius: 9999px; font-weight: 800; font-size: 0.95rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+        <span>Proceed to Checkout</span> &rarr;
+    </a>
+</div>
+
 <div th:replace="~{fragments/footer :: footer}"></div>
 <script th:src="@{/js/main.js}"></script>
 </body>
