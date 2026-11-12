@@ -9,7 +9,7 @@ public class CheckoutForm {
     private String customerName;
 
     @NotBlank(message = "Contact phone is required")
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be a valid 10-digit number")
+    @Pattern(regexp = "^[+0-9\\s\\-]{8,15}$", message = "Please enter a valid phone number (at least 10 digits)")
     private String customerPhone;
 
     @NotBlank(message = "Delivery address is required")
@@ -19,7 +19,7 @@ public class CheckoutForm {
     private String deliveryCity;
 
     @NotBlank(message = "PIN / Postal code is required")
-    @Pattern(regexp = "^[0-9]{6}$", message = "Postal code must be a valid 6-digit number")
+    @Pattern(regexp = "^[0-9]{5,6}$", message = "PIN / Postal code must be 5 or 6 digits")
     private String deliveryZip;
 
     private String orderNotes;
@@ -27,13 +27,15 @@ public class CheckoutForm {
     private String couponCode;
 
     @NotBlank(message = "Please select a payment method")
-    private String paymentMethod = "UPI"; // CARD, UPI, NET_BANKING, COD
+    private String paymentMethod = "UPI"; // UPI, CARD, NET_BANKING, COD
 
     // Simulated Payment Fields
-    private String cardNumber;
-    private String cardExpiry;
-    private String cardCvv;
-    private String upiId;
+    private String upiId = "customer@okhdfcbank";
+    private String cardNumber = "4532 8892 1102 7845";
+    private String cardHolderName = "Rahul Sharma";
+    private String cardExpiry = "12/28";
+    private String cardCvv = "892";
+    private String selectedBank = "HDFC Bank";
 
     public CheckoutForm() {
     }
@@ -102,12 +104,28 @@ public class CheckoutForm {
         this.paymentMethod = paymentMethod;
     }
 
+    public String getUpiId() {
+        return upiId;
+    }
+
+    public void setUpiId(String upiId) {
+        this.upiId = upiId;
+    }
+
     public String getCardNumber() {
         return cardNumber;
     }
 
     public void setCardNumber(String cardNumber) {
         this.cardNumber = cardNumber;
+    }
+
+    public String getCardHolderName() {
+        return cardHolderName;
+    }
+
+    public void setCardHolderName(String cardHolderName) {
+        this.cardHolderName = cardHolderName;
     }
 
     public String getCardExpiry() {
@@ -126,11 +144,11 @@ public class CheckoutForm {
         this.cardCvv = cardCvv;
     }
 
-    public String getUpiId() {
-        return upiId;
+    public String getSelectedBank() {
+        return selectedBank;
     }
 
-    public void setUpiId(String upiId) {
-        this.upiId = upiId;
+    public void setSelectedBank(String selectedBank) {
+        this.selectedBank = selectedBank;
     }
 }

@@ -141,8 +141,37 @@
                     <div>₹<span th:text="${#numbers.formatDecimal(it.subtotal, 1, 2)}">0.00</span></div>
                 </div>
                 <div style="padding: 14px 18px; background: #f8fafc; display: flex; justify-content: space-between; font-weight: 800; font-size: 1.1rem; color: var(--secondary);">
-                    <span>Total Paid:</span>
+                    <span>Total Amount:</span>
                     <span style="color: var(--primary);">₹<span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)}">0.00</span></span>
+                </div>
+            </div>
+
+            <!-- Payment & Breakdown Module -->
+            <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px; margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;">
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">Payment Mode</span>
+                    <strong style="color: var(--secondary); font-size: 1rem;" th:text="${order.paymentMethod}">UPI</strong>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">Payment Status</span>
+                    <span th:style="${order.paymentStatus == 'PAID' ? 'color: #16a34a; font-weight: 800;' : 'color: #d97706; font-weight: 800;'}"
+                          th:text="${order.paymentStatus}">PAID</span>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">Items Subtotal</span>
+                    <span>₹<span th:text="${#numbers.formatDecimal(order.subtotal, 1, 2)}">0.00</span></span>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">GST Tax (5%)</span>
+                    <span>₹<span th:text="${#numbers.formatDecimal(order.taxAmount, 1, 2)}">0.00</span></span>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">Delivery Fee</span>
+                    <span>₹<span th:text="${#numbers.formatDecimal(order.deliveryFee, 1, 2)}">0.00</span></span>
+                </div>
+                <div th:if="${order.discountAmount != null and order.discountAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                    <span style="color: var(--text-muted); display: block; font-size: 0.8rem; text-transform: uppercase;">Coupon Discount (<span th:text="${order.couponCode}">CODE</span>)</span>
+                    <span style="color: #16a34a; font-weight: 700;">-₹<span th:text="${#numbers.formatDecimal(order.discountAmount, 1, 2)}">0.00</span></span>
                 </div>
             </div>
         </div>

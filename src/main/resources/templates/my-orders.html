@@ -39,8 +39,11 @@
                     <span class="status-pill" th:classappend="'status-' + ${ord.orderStatus}" th:text="${ord.orderStatus}">
                         DELIVERED
                     </span>
-                    <div style="font-size: 0.8rem; color: #16a34a; font-weight: 700; margin-top: 4px;" th:text="'Payment: ' + ${ord.paymentStatus}">
-                        Payment: PAID
+                    <div style="margin-top: 6px;">
+                        <span style="font-size: 0.8rem; font-weight: 700; background: #f8fafc; padding: 4px 10px; border-radius: 9999px; border: 1px solid var(--border-color); color: #0f172a;"
+                              th:text="'💳 ' + ${ord.paymentMethod} + ' • ' + ${ord.paymentStatus}">
+                            💳 UPI • PAID
+                        </span>
                     </div>
                 </div>
             </div>

@@ -3,11 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout – FoodExpress</title>
+    <title>Checkout &amp; Payment – FoodExpress</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .payment-method-card {
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            background: white;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .payment-method-card:hover {
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+        }
+        .payment-method-card.active {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.15);
+        }
+        .payment-method-card input[type="radio"] {
+            accent-color: var(--primary);
+            width: 18px;
+            height: 18px;
+        }
+        .pay-icon {
+            font-size: 1.8rem;
+        }
+        .bank-chip {
+            padding: 10px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            background: white;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .bank-chip:hover, .bank-chip.selected {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+        .app-badge {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #475569;
+        }
+    </style>
 </head>
 <body>
 
@@ -17,151 +75,242 @@
     <!-- Flash Alerts -->
     <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
-    <h1 style="font-size: 2rem; font-weight: 800; color: var(--secondary); margin-bottom: 8px;">Order Checkout</h1>
-    <p style="color: var(--text-muted); margin-bottom: 28px;">Confirm your delivery location, review item details, and choose your payment method.</p>
+    <div style="margin-bottom: 24px;">
+        <h1 style="font-size: 2rem; font-weight: 800; color: var(--secondary); margin-bottom: 6px;">Order Checkout &amp; Payment Gateway</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Review your delivery destination, choose your preferred payment option, and complete your order.</p>
+    </div>
 
-    <form th:action="@{/checkout/place-order}" th:object="${checkoutForm}" method="post">
+    <form th:action="@{/checkout/place-order}" th:object="${checkoutForm}" method="post" id="checkoutFormElement">
         <div class="cart-layout">
-            <!-- Left Column: Delivery Address & Payment Method -->
+            <!-- Left Column: Delivery Address & Payment Options -->
             <div style="display: flex; flex-direction: column; gap: 24px;">
 
                 <!-- 1. Delivery Details Card -->
                 <div class="cart-table-card">
-                    <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--secondary); margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
-                        <span>📍</span> Delivery Address &amp; Contact
-                    </h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                        <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--secondary); display: flex; align-items: center; gap: 8px;">
+                            <span>📍</span> 1. Delivery Contact &amp; Destination
+                        </h3>
+                        <span style="font-size: 0.8rem; background: #e0f2fe; color: #0284c7; padding: 4px 10px; border-radius: 9999px; font-weight: 700;">Step 1 of 2</span>
+                    </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <div class="form-group">
-                            <label class="form-label">Full Name *</label>
-                            <input type="text" th:field="*{customerName}" class="form-control" placeholder="Recipient Name">
+                            <label class="form-label">Recipient Full Name *</label>
+                            <input type="text" th:field="*{customerName}" class="form-control" placeholder="e.g. Rahul Sharma" required>
                             <div th:if="${#fields.hasErrors('customerName')}" th:errors="*{customerName}" class="form-error"></div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Phone Number *</label>
-                            <input type="text" th:field="*{customerPhone}" class="form-control" placeholder="10-digit mobile number">
+                            <label class="form-label">Contact Phone Number *</label>
+                            <input type="text" th:field="*{customerPhone}" class="form-control" placeholder="e.g. 9812345678" required>
                             <div th:if="${#fields.hasErrors('customerPhone')}" th:errors="*{customerPhone}" class="form-error"></div>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Street Address / House / Flat No. *</label>
-                        <input type="text" th:field="*{deliveryAddress}" class="form-control" placeholder="Flat No., Building Name, Street">
+                        <label class="form-label">Street Address / House / Flat Number *</label>
+                        <input type="text" th:field="*{deliveryAddress}" class="form-control" placeholder="e.g. Flat 402, Green Valley Apartments, 100ft Road" required>
                         <div th:if="${#fields.hasErrors('deliveryAddress')}" th:errors="*{deliveryAddress}" class="form-error"></div>
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <div class="form-group">
                             <label class="form-label">City / Delivery Area *</label>
-                            <input type="text" th:field="*{deliveryCity}" class="form-control" placeholder="e.g. Indiranagar, Metro City">
+                            <input type="text" th:field="*{deliveryCity}" class="form-control" placeholder="e.g. Indiranagar, Metro City" required>
                             <div th:if="${#fields.hasErrors('deliveryCity')}" th:errors="*{deliveryCity}" class="form-error"></div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">PIN / Postal Code *</label>
-                            <input type="text" th:field="*{deliveryZip}" class="form-control" placeholder="6-digit PIN code">
+                            <input type="text" th:field="*{deliveryZip}" class="form-control" placeholder="e.g. 560038" required>
                             <div th:if="${#fields.hasErrors('deliveryZip')}" th:errors="*{deliveryZip}" class="form-error"></div>
                         </div>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label">Special Delivery / Cooking Instructions (Optional)</label>
-                        <textarea th:field="*{orderNotes}" class="form-control" rows="2" placeholder="e.g. Please make it extra spicy, ring doorbell twice..."></textarea>
+                        <label class="form-label">Kitchen &amp; Delivery Notes (Optional)</label>
+                        <textarea th:field="*{orderNotes}" class="form-control" rows="2" placeholder="e.g. Please send extra mint chutney; ring doorbell upon arrival..."></textarea>
                     </div>
                 </div>
 
-                <!-- 2. Payment Method Card (Demonstration Payment Gateway Flow) -->
+                <!-- 2. Payment Gateway Card -->
                 <div class="cart-table-card">
-                    <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--secondary); margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
-                        <span>💳</span> Select Payment Method (Gateway Simulation)
-                    </h3>
-
-                    <!-- Payment Option Radio Pills -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 20px;">
-                        <label style="border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; text-align: center; background: #f8fafc;">
-                            <input type="radio" th:field="*{paymentMethod}" value="UPI" checked style="accent-color: var(--primary);">
-                            <span style="font-size: 1.5rem;">📱</span>
-                            <span style="font-weight: 700; font-size: 0.85rem;">UPI / QR</span>
-                        </label>
-
-                        <label style="border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; text-align: center; background: #f8fafc;">
-                            <input type="radio" th:field="*{paymentMethod}" value="CARD" style="accent-color: var(--primary);">
-                            <span style="font-size: 1.5rem;">💳</span>
-                            <span style="font-weight: 700; font-size: 0.85rem;">Credit/Debit Card</span>
-                        </label>
-
-                        <label style="border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; text-align: center; background: #f8fafc;">
-                            <input type="radio" th:field="*{paymentMethod}" value="NET_BANKING" style="accent-color: var(--primary);">
-                            <span style="font-size: 1.5rem;">🏦</span>
-                            <span style="font-weight: 700; font-size: 0.85rem;">Net Banking</span>
-                        </label>
-
-                        <label style="border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; text-align: center; background: #f8fafc;">
-                            <input type="radio" th:field="*{paymentMethod}" value="COD" style="accent-color: var(--primary);">
-                            <span style="font-size: 1.5rem;">💵</span>
-                            <span style="font-weight: 700; font-size: 0.85rem;">Cash on Delivery</span>
-                        </label>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                        <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--secondary); display: flex; align-items: center; gap: 8px;">
+                            <span>💳</span> 2. Choose Payment Method
+                        </h3>
+                        <span style="font-size: 0.8rem; background: #dcfce7; color: #16a34a; padding: 4px 10px; border-radius: 9999px; font-weight: 700;">100% Encrypted Gateway</span>
                     </div>
 
-                    <!-- Dynamic Payment Sub-sections -->
-                    <div id="upiPaymentSection" style="background: #f8fafc; border: 1px dashed #cbd5e1; padding: 16px; border-radius: var(--radius-md); margin-bottom: 12px;">
-                        <label class="form-label">Virtual Payment Address (UPI ID)</label>
-                        <input type="text" th:field="*{upiId}" class="form-control" placeholder="e.g. mobile@okhdfcbank or rahul@upi">
-                        <small style="color: var(--text-muted); display: block; margin-top: 4px;">Supports Google Pay, PhonePe, Paytm, and BHIM UPI.</small>
+                    <!-- Payment Option Selectable Cards Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 24px;">
+
+                        <!-- Option 1: UPI -->
+                        <div class="payment-method-card active" id="cardOptionUPI" onclick="selectPaymentOption('UPI')">
+                            <input type="radio" th:field="*{paymentMethod}" value="UPI" id="radioUPI" checked>
+                            <span class="pay-icon">📱</span>
+                            <div>
+                                <strong style="display: block; font-size: 0.95rem; color: var(--secondary);">UPI / QR Code</strong>
+                                <small style="color: var(--text-muted); font-size: 0.78rem;">Google Pay, PhonePe, Paytm</small>
+                            </div>
+                        </div>
+
+                        <!-- Option 2: Card -->
+                        <div class="payment-method-card" id="cardOptionCARD" onclick="selectPaymentOption('CARD')">
+                            <input type="radio" th:field="*{paymentMethod}" value="CARD" id="radioCARD">
+                            <span class="pay-icon">💳</span>
+                            <div>
+                                <strong style="display: block; font-size: 0.95rem; color: var(--secondary);">Credit / Debit Card</strong>
+                                <small style="color: var(--text-muted); font-size: 0.78rem;">Visa, Mastercard, RuPay</small>
+                            </div>
+                        </div>
+
+                        <!-- Option 3: Net Banking -->
+                        <div class="payment-method-card" id="cardOptionNET_BANKING" onclick="selectPaymentOption('NET_BANKING')">
+                            <input type="radio" th:field="*{paymentMethod}" value="NET_BANKING" id="radioNET_BANKING">
+                            <span class="pay-icon">🏦</span>
+                            <div>
+                                <strong style="display: block; font-size: 0.95rem; color: var(--secondary);">Net Banking</strong>
+                                <small style="color: var(--text-muted); font-size: 0.78rem;">All Indian Major Banks</small>
+                            </div>
+                        </div>
+
+                        <!-- Option 4: COD -->
+                        <div class="payment-method-card" id="cardOptionCOD" onclick="selectPaymentOption('COD')">
+                            <input type="radio" th:field="*{paymentMethod}" value="COD" id="radioCOD">
+                            <span class="pay-icon">💵</span>
+                            <div>
+                                <strong style="display: block; font-size: 0.95rem; color: var(--secondary);">Cash on Delivery</strong>
+                                <small style="color: var(--text-muted); font-size: 0.78rem;">Pay cash upon delivery</small>
+                            </div>
+                        </div>
                     </div>
 
-                    <div id="cardPaymentSection" style="display: none; background: #f8fafc; border: 1px dashed #cbd5e1; padding: 16px; border-radius: var(--radius-md); margin-bottom: 12px;">
+                    <!-- Dynamic Payment Sub-panels -->
+
+                    <!-- 1. UPI Sub-panel -->
+                    <div id="panelUPI" style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: var(--radius-md); padding: 20px;">
+                        <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+                            <!-- Simulated QR Code -->
+                            <div style="text-align: center; background: white; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                                <div style="width: 140px; height: 140px; background: #0f172a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 6px; font-family: monospace; font-size: 0.75rem; text-align: center; padding: 8px;">
+                                    <span style="font-size: 2.2rem; margin-bottom: 4px;">📲</span>
+                                    <span>[ UPI QR CODE ]</span>
+                                    <span style="font-size: 0.65rem; color: #94a3b8; margin-top: 4px;">SCAN &amp; PAY</span>
+                                </div>
+                                <span style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; font-weight: 700;">Scan with any UPI App</span>
+                            </div>
+
+                            <div style="flex: 1; min-width: 250px;">
+                                <div style="display: flex; gap: 6px; margin-bottom: 12px;">
+                                    <span class="app-badge">GPay</span>
+                                    <span class="app-badge">PhonePe</span>
+                                    <span class="app-badge">Paytm</span>
+                                    <span class="app-badge">BHIM</span>
+                                </div>
+
+                                <label class="form-label">Enter Virtual Payment Address (UPI ID)</label>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="text" th:field="*{upiId}" id="upiIdInput" class="form-control" placeholder="e.g. mobile@oksbi or rahul@upi">
+                                    <button type="button" class="btn btn-outline btn-sm" style="white-space: nowrap;"
+                                            onclick="document.getElementById('upiIdInput').value='rahul@oksbi';">
+                                        ⚡ Demo UPI
+                                    </button>
+                                </div>
+                                <small style="color: #64748b; font-size: 0.78rem; display: block; margin-top: 6px;">Instant payment authorization simulated upon clicking Place Order.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Card Sub-panel -->
+                    <div id="panelCARD" style="display: none; background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: var(--radius-md); padding: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: #475569;">Accepted Cards: Visa, MasterCard, RuPay</span>
+                            <button type="button" class="btn btn-outline btn-sm"
+                                    onclick="fillDemoCard();">
+                                ⚡ Fill Demo Card
+                            </button>
+                        </div>
+
                         <div class="form-group">
-                            <label class="form-label">Card Number</label>
-                            <input type="text" th:field="*{cardNumber}" class="form-control" placeholder="4532 &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; 8923">
+                            <label class="form-label">Cardholder Name</label>
+                            <input type="text" th:field="*{cardHolderName}" id="cardHolderInput" class="form-control" placeholder="Name as displayed on card">
                         </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+
+                        <div class="form-group">
+                            <label class="form-label">16-Digit Card Number</label>
+                            <input type="text" th:field="*{cardNumber}" id="cardNumberInput" class="form-control" placeholder="4532 &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; 8923">
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label class="form-label">Expiry Date</label>
-                                <input type="text" th:field="*{cardExpiry}" class="form-control" placeholder="MM / YY">
+                                <label class="form-label">Valid Thru (MM / YY)</label>
+                                <input type="text" th:field="*{cardExpiry}" id="cardExpiryInput" class="form-control" placeholder="12 / 28">
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label class="form-label">CVV</label>
-                                <input type="password" th:field="*{cardCvv}" class="form-control" maxlength="4" placeholder="123">
+                                <label class="form-label">CVV / Security Code</label>
+                                <input type="password" th:field="*{cardCvv}" id="cardCvvInput" class="form-control" maxlength="4" placeholder="892">
                             </div>
                         </div>
                     </div>
 
-                    <div id="netBankingPaymentSection" style="display: none; background: #f8fafc; border: 1px dashed #cbd5e1; padding: 16px; border-radius: var(--radius-md); margin-bottom: 12px;">
-                        <label class="form-label">Select Your Bank</label>
-                        <select class="form-control">
-                            <option>HDFC Bank</option>
-                            <option>State Bank of India</option>
-                            <option>ICICI Bank</option>
-                            <option>Axis Bank</option>
-                            <option>Kotak Mahindra Bank</option>
+                    <!-- 3. Net Banking Sub-panel -->
+                    <div id="panelNET_BANKING" style="display: none; background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: var(--radius-md); padding: 20px;">
+                        <label class="form-label" style="margin-bottom: 10px;">Select Popular Bank</label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 16px;">
+                            <div class="bank-chip selected" onclick="selectBank(this, 'HDFC Bank')">🏛️ HDFC Bank</div>
+                            <div class="bank-chip" onclick="selectBank(this, 'State Bank of India')">🏛️ SBI</div>
+                            <div class="bank-chip" onclick="selectBank(this, 'ICICI Bank')">🏛️ ICICI</div>
+                            <div class="bank-chip" onclick="selectBank(this, 'Axis Bank')">🏛️ Axis Bank</div>
+                        </div>
+
+                        <label class="form-label">Or Select from All Banks</label>
+                        <select th:field="*{selectedBank}" id="bankSelectDropdown" class="form-control">
+                            <option value="HDFC Bank">HDFC Bank</option>
+                            <option value="State Bank of India">State Bank of India (SBI)</option>
+                            <option value="ICICI Bank">ICICI Bank</option>
+                            <option value="Axis Bank">Axis Bank</option>
+                            <option value="Kotak Mahindra Bank">Kotak Mahindra Bank</option>
+                            <option value="Punjab National Bank">Punjab National Bank</option>
+                            <option value="Bank of Baroda">Bank of Baroda</option>
                         </select>
                     </div>
 
-                    <div id="codPaymentSection" style="display: none; background: #fef3c7; border: 1px solid #fde68a; padding: 14px; border-radius: var(--radius-md); color: #92400e; font-size: 0.9rem;">
-                        ℹ️ Cash on Delivery: Please keep exact change ready of ₹<span th:text="${#numbers.formatDecimal(cart.grandTotal, 1, 2)}">0.00</span> for the delivery rider upon arrival.
+                    <!-- 4. Cash on Delivery Sub-panel -->
+                    <div id="panelCOD" style="display: none; background: #fef3c7; border: 1.5px solid #fde68a; border-radius: var(--radius-md); padding: 18px; color: #92400e;">
+                        <div style="display: flex; gap: 12px; align-items: flex-start;">
+                            <span style="font-size: 1.8rem;">💵</span>
+                            <div>
+                                <strong style="display: block; font-size: 1rem; margin-bottom: 4px;">Cash on Delivery Selected</strong>
+                                <p style="font-size: 0.85rem; line-height: 1.5; margin-bottom: 0;">
+                                    Please keep exact cash ready of <strong>₹<span th:text="${#numbers.formatDecimal(cart.grandTotal, 1, 2)}">0.00</span></strong>. Our delivery partner will collect payment upon doorstep handover.
+                                </p>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
 
             </div>
 
-            <!-- Right Column: Order Billing Review -->
-            <div class="summary-card" style="height: fit-content;">
-                <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--secondary); margin-bottom: 18px;">Order Summary</h3>
+            <!-- Right Column: Order Summary & Pay Action Button -->
+            <div class="summary-card" style="height: fit-content; position: sticky; top: 90px;">
+                <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--secondary); margin-bottom: 18px;">Bill Summary</h3>
 
-                <!-- Small Items List -->
-                <div style="max-height: 200px; overflow-y: auto; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-                    <div th:each="it : ${cart.itemsList}" style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 8px;">
+                <!-- Ordered Items List -->
+                <div style="max-height: 220px; overflow-y: auto; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                    <div th:each="it : ${cart.itemsList}" style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 10px;">
                         <div>
-                            <span th:text="${it.quantity}">1</span> &times; <strong th:text="${it.foodName}">Dish</strong>
+                            <span style="font-weight: 700; color: var(--primary);" th:text="${it.quantity} + 'x'">1x</span>
+                            <span th:text="${it.foodName}">Dish</span>
                         </div>
-                        <div>₹<span th:text="${#numbers.formatDecimal(it.subtotal, 1, 2)}">0.00</span></div>
+                        <div style="font-weight: 700;">₹<span th:text="${#numbers.formatDecimal(it.subtotal, 1, 2)}">0.00</span></div>
                     </div>
                 </div>
 
                 <div class="summary-row">
-                    <span>Subtotal:</span>
+                    <span>Items Subtotal:</span>
                     <span>₹<span th:text="${#numbers.formatDecimal(cart.subtotal, 1, 2)}">0.00</span></span>
                 </div>
 
@@ -188,12 +337,13 @@
 
                 <input type="hidden" th:field="*{couponCode}">
 
-                <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 24px;">
-                    🔒 Place Order &amp; Pay
+                <!-- Pay Button -->
+                <button type="submit" class="btn btn-primary btn-block btn-lg" id="payButton" style="margin-top: 24px; font-weight: 800; font-size: 1.05rem;">
+                    🔒 Authorize &amp; Place Order (₹<span th:text="${#numbers.formatDecimal(cart.grandTotal, 1, 2)}">0.00</span>)
                 </button>
 
                 <div style="margin-top: 14px; text-align: center; font-size: 0.78rem; color: #94a3b8;">
-                    By placing order, you agree to FoodExpress terms &amp; conditions.
+                    🛡️ Secure 256-Bit SSL Encrypted Demonstration Gateway
                 </div>
             </div>
         </div>
@@ -201,6 +351,60 @@
 </div>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
-<script th:src="@{/js/main.js}"></script>
+
+<script>
+    // Interactive Payment Option Selector
+    function selectPaymentOption(method) {
+        // 1. Update radio button
+        const radio = document.getElementById('radio' + method);
+        if (radio) {
+            radio.checked = true;
+        }
+
+        // 2. Update card styles
+        const cards = ['UPI', 'CARD', 'NET_BANKING', 'COD'];
+        cards.forEach(function (c) {
+            const cardEl = document.getElementById('cardOption' + c);
+            const panelEl = document.getElementById('panel' + c);
+            if (cardEl) {
+                if (c === method) {
+                    cardEl.classList.add('active');
+                } else {
+                    cardEl.classList.remove('active');
+                }
+            }
+            if (panelEl) {
+                panelEl.style.display = (c === method) ? 'block' : 'none';
+            }
+        });
+    }
+
+    function selectBank(element, bankName) {
+        document.querySelectorAll('.bank-chip').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+        const select = document.getElementById('bankSelectDropdown');
+        if (select) {
+            select.value = bankName;
+        }
+    }
+
+    function fillDemoCard() {
+        document.getElementById('cardHolderInput').value = 'Rahul Sharma';
+        document.getElementById('cardNumberInput').value = '4532 8892 1102 7845';
+        document.getElementById('cardExpiryInput').value = '12/28';
+        document.getElementById('cardCvvInput').value = '892';
+    }
+
+    // Initialize state on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkedRadio = document.querySelector('input[name="paymentMethod"]:checked');
+        if (checkedRadio) {
+            selectPaymentOption(checkedRadio.value);
+        } else {
+            selectPaymentOption('UPI');
+        }
+    });
+</script>
+
 </body>
 </html>
