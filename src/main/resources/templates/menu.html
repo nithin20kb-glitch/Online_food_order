@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Menu &amp; Restaurants – FoodExpress</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Page Header with Filter Controls -->
+<div style="background: white; border-bottom: 1px solid var(--border-color); padding: 32px 0;">
+    <div class="container">
+        <!-- Breadcrumb & Title -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+            <div>
+                <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--secondary);">Restaurant Food Menu</h1>
+                <p style="color: var(--text-muted); font-size: 0.95rem;">
+                    Showing <strong th:text="${foodItems.size()}">0</strong> available dishes crafted fresh to order
+                </p>
+            </div>
+
+            <!-- Active Filter Badges or Clear -->
+            <div th:if="${searchQuery != null or currentCategorySlug != null or currentLocation != null or vegOnly}">
+                <a th:href="@{/menu}" class="btn btn-outline btn-sm" style="color: var(--danger); border-color: #fca5a5;">
+                    ✕ Reset All Filters
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter & Search Form -->
+        <form th:action="@{/menu}" method="get" style="display: grid; grid-template-columns: 2fr 1.5fr 1fr auto; gap: 12px; align-items: center;">
+            <!-- Keyword Search -->
+            <div style="position: relative;">
+                <input type="text" name="q" th:value="${searchQuery}" placeholder="Search biryani, pizza, burger, momos..." class="form-control" style="padding-left: 38px;">
+                <span style="position: absolute; left: 14px; top: 11px;">🔍</span>
+            </div>
+
+            <!-- Location Filter (Sheet Compulsory Requirement) -->
+            <select name="location" class="form-control" onchange="this.form.submit()">
+                <option value="all">📍 All Delivery Areas</option>
+                <option value="Indiranagar" th:selected="${currentLocation == 'Indiranagar'}">Indiranagar Area</option>
+                <option value="Whitefield" th:selected="${currentLocation == 'Whitefield'}">Whitefield Tech Zone</option>
+                <option value="Koramangala" th:selected="${currentLocation == 'Koramangala'}">Koramangala Central</option>
+                <option value="MG Road" th:selected="${currentLocation == 'MG Road'}">MG Road Downtown</option>
+            </select>
+
+            <!-- Vegetarian Only Toggle -->
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--secondary); background: #f8fafc; padding: 10px 14px; border: 1.5px solid var(--border-color); border-radius: var(--radius-md);">
+                <input type="checkbox" name="vegOnly" value="true" th:checked="${vegOnly}" onchange="this.form.submit()">
+                <span>🌱 Veg Only</span>
+            </label>
+
+            <!-- Hidden category slug if any -->
+            <input type="hidden" name="category" th:value="${currentCategorySlug}" th:if="${currentCategorySlug != null}">
+
+            <button type="submit" class="btn btn-primary" style="height: 100%;">Filter</button>
+        </form>
+
+        <!-- Category Filter Pills Bar -->
+        <div style="display: flex; gap: 10px; overflow-x: auto; padding-top: 20px; scrollbar-width: none;">
+            <a th:href="@{/menu(location=${currentLocation}, q=${searchQuery}, vegOnly=${vegOnly})}"
+               class="btn btn-sm"
+               th:classappend="${currentCategorySlug == null or currentCategorySlug == ''} ? 'btn-primary' : 'btn-outline'"
+               style="border-radius: var(--radius-full); white-space: nowrap;">
+                All Categories
+            </a>
+            <a th:each="cat : ${categories}"
+               th:href="@{/menu(category=${cat.slug}, location=${currentLocation}, q=${searchQuery}, vegOnly=${vegOnly})}"
+               class="btn btn-sm"
+               th:classappend="${currentCategorySlug == cat.slug} ? 'btn-primary' : 'btn-outline'"
+               style="border-radius: var(--radius-full); white-space: nowrap;">
+                <span th:text="${cat.name}">Category</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Flash Alerts -->
+<div class="container" style="margin-top: 16px;">
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+    <div th:if="${infoMessage}" class="alert alert-info" th:text="${infoMessage}"></div>
+</div>
+
+<!-- Food Menu Grid Section -->
+<section class="section">
+    <div class="container">
+        <!-- Empty State if no foods found -->
+        <div th:if="${foodItems.isEmpty()}" style="text-align: center; padding: 60px 20px; background: white; border-radius: 12px; border: 1px dashed var(--border-color);">
+            <div style="font-size: 3.5rem; margin-bottom: 12px;">🍽️</div>
+            <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--secondary); margin-bottom: 8px;">No Food Items Found</h3>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">We couldn't find any dishes matching your selected filters or location.</p>
+            <a th:href="@{/menu}" class="btn btn-primary">Reset Filters &amp; View All Dishes</a>
+        </div>
+
+        <!-- Food Grid -->
+        <div th:unless="${foodItems.isEmpty()}" class="food-grid">
+            <div th:each="dish : ${foodItems}" class="food-card">
+                <div class="food-img-wrapper">
+                    <img th:src="${dish.imageUrl}" th:alt="${dish.name}" class="food-img">
+                    <div class="food-badge-rating">
+                        <span>★</span>
+                        <span th:text="${dish.rating}">4.8</span>
+                    </div>
+                    <div class="food-badge-diet">
+                        <span class="diet-indicator" th:classappend="${dish.vegetarian ? 'veg' : 'non-veg'}"></span>
+                    </div>
+                </div>
+
+                <div class="food-content">
+                    <div class="food-restaurant" th:text="${dish.restaurant != null ? dish.restaurant.name : 'FoodExpress Kitchen'}">
+                        Restaurant
+                    </div>
+                    <a th:href="@{/food/{id}(id=${dish.id})}">
+                        <h3 class="food-title" th:text="${dish.name}">Dish Name</h3>
+                    </a>
+                    <p class="food-desc" th:text="${dish.description}">Dish description details.</p>
+
+                    <div class="food-footer">
+                        <div class="food-price">₹<span th:text="${#numbers.formatDecimal(dish.price, 1, 2)}">250.00</span></div>
+
+                        <div th:if="${dish.available}">
+                            <form th:action="@{/cart/add}" method="post" style="margin: 0;">
+                                <input type="hidden" name="foodId" th:value="${dish.id}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <span>+ Add to Cart</span>
+                                </button>
+                            </form>
+                        </div>
+                        <div th:unless="${dish.available}">
+                            <span class="out-of-stock-badge">Out of Stock</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

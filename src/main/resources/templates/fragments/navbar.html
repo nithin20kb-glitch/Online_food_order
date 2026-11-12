@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head></head>
+<body>
+
+<header th:fragment="navbar" class="navbar">
+    <div class="container nav-container">
+        <!-- Brand Logo -->
+        <a th:href="@{/}" class="brand-logo">
+            <span class="brand-icon">🍔</span>
+            <span class="brand-text">Food<span>Express</span></span>
+        </a>
+
+        <!-- Navigation Links -->
+        <ul class="nav-links">
+            <li><a th:href="@{/}" class="nav-link">Home</a></li>
+            <li><a th:href="@{/menu}" class="nav-link">Menu &amp; Restaurants</a></li>
+            <li><a th:href="@{/about}" class="nav-link">About Us</a></li>
+        </ul>
+
+        <!-- Right Side Nav Actions -->
+        <div class="nav-actions">
+            <!-- Cart Button with Live Item Badge -->
+            <a th:href="@{/cart}" class="cart-btn" title="View Shopping Cart">
+                <span>🛒</span>
+                <span>Cart</span>
+                <span class="cart-badge" th:text="${cartItemCount}">0</span>
+            </a>
+
+            <!-- Unauthenticated Guests: Login / Register -->
+            <div sec:authorize="isAnonymous()" style="display: flex; gap: 8px;">
+                <a th:href="@{/login}" class="btn btn-outline btn-sm">Log In</a>
+                <a th:href="@{/register}" class="btn btn-primary btn-sm">Sign Up</a>
+            </div>
+
+            <!-- Authenticated User Dropdown -->
+            <div sec:authorize="isAuthenticated()" class="user-menu">
+                <button type="button" class="user-btn">
+                    <span>👤</span>
+                    <span th:text="${currentUser != null ? currentUser.fullName : 'My Account'}">Account</span>
+                    <span>▾</span>
+                </button>
+                <div class="user-dropdown">
+                    <!-- Customer links -->
+                    <a th:href="@{/profile}">👤 My Profile</a>
+                    <a th:href="@{/my-orders}">📦 My Orders</a>
+                    <!-- Admin Link if Admin -->
+                    <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}" style="color: var(--primary); font-weight: 700;">
+                        ⚡ Admin Dashboard
+                    </a>
+                    <hr style="border: none; border-top: 1px solid var(--border-color); margin: 4px 0;">
+                    <!-- Logout form -->
+                    <form th:action="@{/logout}" method="post" style="margin: 0;">
+                        <button type="submit" style="color: var(--danger);">🚪 Log Out</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+</body>
+</html>

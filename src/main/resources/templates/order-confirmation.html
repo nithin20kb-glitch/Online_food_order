@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed – FoodExpress</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container" style="padding: 50px 20px;">
+    <div style="max-width: 720px; margin: 0 auto; background: white; padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); text-align: center;">
+
+        <div style="width: 72px; height: 72px; background: #eafaf1; color: #27ae60; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 20px;">
+            ✓
+        </div>
+
+        <span style="background: #eafaf1; color: #27ae60; font-weight: 800; font-size: 0.85rem; padding: 4px 12px; border-radius: 9999px; text-transform: uppercase;">
+            Payment Successful &amp; Order Received
+        </span>
+
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--secondary); margin-top: 14px; margin-bottom: 8px;">
+            Order Confirmed!
+        </h1>
+
+        <p style="color: var(--text-muted); font-size: 1rem; margin-bottom: 24px;">
+            The restaurant has received your order and is preparing your meal.
+        </p>
+
+        <!-- Order Info Banner -->
+        <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; text-align: left; margin-bottom: 28px;">
+            <div>
+                <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Order Tracking Number</span>
+                <strong style="font-size: 1.1rem; color: var(--secondary); font-family: monospace;" th:text="${order.orderTrackingNumber}">FX-ORD-20261109-1001</strong>
+            </div>
+            <div>
+                <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Estimated Delivery</span>
+                <strong style="font-size: 1.1rem; color: var(--primary);" th:text="${#temporals.format(order.estimatedDeliveryTime, 'hh:mm a')}">35 Mins</strong>
+            </div>
+            <div>
+                <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Payment Status</span>
+                <strong style="color: #16a34a;" th:text="${order.paymentStatus + ' (' + order.paymentMethod + ')'}">PAID (UPI)</strong>
+            </div>
+            <div>
+                <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Delivering To</span>
+                <strong style="font-size: 0.9rem;" th:text="${order.deliveryAddress + ', ' + order.deliveryCity}">Indiranagar</strong>
+            </div>
+        </div>
+
+        <!-- Ordered Items Summary -->
+        <div style="text-align: left; margin-bottom: 30px;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--secondary); margin-bottom: 12px;">Items Ordered</h3>
+            <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); overflow: hidden;">
+                <div th:each="it : ${order.orderItems}" style="display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border-color); background: white;">
+                    <div>
+                        <strong th:text="${it.quantity}">1</strong> &times; <span th:text="${it.foodName}">Dish</span>
+                    </div>
+                    <div>₹<span th:text="${#numbers.formatDecimal(it.subtotal, 1, 2)}">0.00</span></div>
+                </div>
+                <div style="padding: 14px 16px; background: #f8fafc; display: flex; justify-content: space-between; font-weight: 800; font-size: 1.1rem; color: var(--secondary);">
+                    <span>Total Amount Paid:</span>
+                    <span style="color: var(--primary);">₹<span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)}">0.00</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+            <a th:href="@{/track/{num}(num=${order.orderTrackingNumber})}" class="btn btn-primary btn-lg">
+                📍 Track Order Live &rarr;
+            </a>
+            <a th:href="@{/my-orders}" class="btn btn-outline btn-lg">
+                View All My Orders
+            </a>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

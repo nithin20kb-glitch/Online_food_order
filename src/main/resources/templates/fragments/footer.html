@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+
+<footer th:fragment="footer" class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <div class="brand-logo" style="color: white; margin-bottom: 14px;">
+                    <span class="brand-icon">🍔</span>
+                    <span class="brand-text">Food<span style="color: var(--primary);">Express</span></span>
+                </div>
+                <p style="font-size: 0.9rem; line-height: 1.6; margin-bottom: 18px;">
+                    Experience lightning-fast online food delivery from your favorite local kitchens and gourmet restaurants. Hot, fresh, and hygienic meals delivered straight to your doorstep.
+                </p>
+                <div style="display: flex; gap: 12px; font-size: 1.2rem;">
+                    <span>📱</span>
+                    <span>🛵</span>
+                    <span>💳</span>
+                    <span>⭐</span>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h3>Quick Navigation</h3>
+                <ul>
+                    <li><a th:href="@{/}">Home</a></li>
+                    <li><a th:href="@{/menu}">Browse Menu</a></li>
+                    <li><a th:href="@{/about}">About Us</a></li>
+                    <li><a th:href="@{/cart}">Shopping Cart</a></li>
+                    <li><a th:href="@{/my-orders}">Track Orders</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h3>Top Categories</h3>
+                <ul>
+                    <li><a th:href="@{/menu(category='biryani-rice')}">Biryani &amp; Rice</a></li>
+                    <li><a th:href="@{/menu(category='pizzas-burgers')}">Pizzas &amp; Burgers</a></li>
+                    <li><a th:href="@{/menu(category='north-indian')}">North Indian Curries</a></li>
+                    <li><a th:href="@{/menu(category='chinese-asian')}">Chinese &amp; Asian</a></li>
+                    <li><a th:href="@{/menu(category='desserts-beverages')}">Desserts &amp; Shakes</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h3>Contact &amp; Support</h3>
+                <p style="font-size: 0.9rem; margin-bottom: 8px;">📍 100ft Road, Metro City, 560001</p>
+                <p style="font-size: 0.9rem; margin-bottom: 8px;">📞 +91 98765 43210</p>
+                <p style="font-size: 0.9rem; margin-bottom: 16px;">✉️ support@foodexpress.com</p>
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 8px;">
+                    <span style="font-size: 0.8rem; color: #cbd5e1; display: block; margin-bottom: 4px;">Staff Portal</span>
+                    <a th:href="@{/admin/login}" style="color: var(--primary); font-size: 0.85rem; font-weight: 700;">
+                        🔒 Admin Login Portal &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 FoodExpress. Team-3: Online Food Ordering and Restaurant Management System. All rights reserved.</p>
+            <p style="color: #64748b;">B.Tech Computer Science Software Engineering Capstone Project</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

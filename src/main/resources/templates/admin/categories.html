@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Categories – FoodExpress Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+
+<div th:replace="~{admin/sidebar :: sidebar('categories')}"></div>
+
+<main class="admin-main">
+    <div class="admin-header">
+        <div>
+            <h1 class="admin-title">Manage Food Categories</h1>
+            <p style="color: var(--admin-text-muted); font-size: 0.95rem;">Group your restaurant offerings into attractive customer categories</p>
+        </div>
+    </div>
+
+    <!-- Flash Alerts -->
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div style="display: grid; grid-template-columns: 1fr 340px; gap: 30px;">
+        <!-- Categories Table -->
+        <div class="data-card">
+            <div class="data-card-header">
+                <h3 class="data-card-title">Active Categories (<span th:text="${categories.size()}">0</span>)</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">Image</th>
+                            <th>Name</th>
+                            <th>Slug</th>
+                            <th>Description</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="cat : ${categories}">
+                            <td>
+                                <img th:src="${cat.imageUrl}" th:alt="${cat.name}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover;">
+                            </td>
+                            <td><strong th:text="${cat.name}">Biryani</strong></td>
+                            <td style="font-family: monospace; font-size: 0.8rem; color: #64748b;" th:text="${cat.slug}">biryani-rice</td>
+                            <td style="font-size: 0.85rem; color: var(--admin-text-muted);" th:text="${cat.description}">Description</td>
+                            <td style="text-align: right;">
+                                <form th:action="@{/admin/categories/delete/{id}(id=${cat.id})}" method="post" onsubmit="return confirm('Delete this category? Items linked to it may be affected.');" style="margin: 0;">
+                                    <button type="submit" class="btn btn-danger btn-sm" style="padding: 4px 8px;">
+                                        🗑️
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Add Category Form -->
+        <div style="background: white; border-radius: 12px; border: 1px solid var(--admin-border); padding: 24px; height: fit-content;">
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--admin-text-dark); margin-bottom: 16px;">
+                + Add New Category
+            </h3>
+            <form th:action="@{/admin/categories/save}" th:object="${categoryForm}" method="post">
+                <div class="form-group">
+                    <label class="form-label">Category Name *</label>
+                    <input type="text" th:field="*{name}" class="form-control" placeholder="e.g. South Indian Specials" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Slug (Optional)</label>
+                    <input type="text" th:field="*{slug}" class="form-control" placeholder="e.g. south-indian">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Image URL</label>
+                    <input type="url" th:field="*{imageUrl}" class="form-control" placeholder="https://images.unsplash.com/photo-...">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea th:field="*{description}" class="form-control" rows="2" placeholder="Crispy dosas, idlis, and vadas..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    Create Category
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/admin.js}"></script>
+</body>
+</html>

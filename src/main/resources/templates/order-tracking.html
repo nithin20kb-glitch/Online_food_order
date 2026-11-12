@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Track Order #' + ${order.orderTrackingNumber} + ' – FoodExpress'">Track Order</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container" style="padding: 40px 20px;">
+    <!-- Breadcrumb -->
+    <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+        <a th:href="@{/}" style="color: var(--text-muted);">Home</a> &rsaquo;
+        <a th:href="@{/my-orders}" style="color: var(--text-muted);">My Orders</a> &rsaquo;
+        <span style="color: var(--secondary); font-weight: 600;">Track Order</span>
+    </div>
+
+    <div class="tracker-card">
+        <!-- Tracker Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
+            <div>
+                <span style="font-size: 0.85rem; font-weight: 700; color: var(--primary); text-transform: uppercase;">
+                    Live Delivery Tracker
+                </span>
+                <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--secondary); margin-top: 4px;">
+                    Order #<span th:text="${order.orderTrackingNumber}">FX-ORD-20261109-1001</span>
+                </h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">
+                    Placed on <span th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy, hh:mm a')}">Date</span>
+                </p>
+            </div>
+
+            <div style="text-align: right;">
+                <span class="status-pill" th:classappend="'status-' + ${order.orderStatus}" th:text="${order.orderStatus}">
+                    OUT_FOR_DELIVERY
+                </span>
+                <div style="margin-top: 8px;">
+                    <a th:href="@{/track/{num}(num=${order.orderTrackingNumber})}" class="btn btn-outline btn-sm">
+                        🔄 Refresh Status
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- If Rejection / Refund State (Compulsory Sheet Requirement) -->
+        <div th:if="${order.orderStatus == 'REJECTED_REFUNDED'}" style="margin: 30px 0; background: #fee2e2; border: 1.5px solid #f87171; border-radius: var(--radius-md); padding: 20px;">
+            <div style="display: flex; align-items: flex-start; gap: 14px;">
+                <span style="font-size: 2rem;">⚠️</span>
+                <div>
+                    <h3 style="color: #991b1b; font-size: 1.15rem; font-weight: 800; margin-bottom: 4px;">
+                        Order Cancelled &amp; Refund Processed
+                    </h3>
+                    <p style="color: #b91c1c; font-size: 0.95rem; line-height: 1.5; margin-bottom: 8px;">
+                        The restaurant could not fulfill this order.
+                        <span th:if="${order.rejectionReason != null and !order.rejectionReason.isEmpty()}">
+                            Reason: "<strong th:text="${order.rejectionReason}">Kitchen Overload</strong>"
+                        </span>
+                    </p>
+                    <p style="color: #7f1d1d; font-size: 0.9rem; font-weight: 700;">
+                        💳 Full Refund of ₹<span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)}">0.00</span> has been credited back to your original payment method.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Normal Progression Visual Timeline Tracker -->
+        <div th:unless="${order.orderStatus == 'REJECTED_REFUNDED'}" class="timeline">
+            <!-- Step 1: Placed -->
+            <div class="timeline-step completed">
+                <div class="step-icon">📝</div>
+                <div class="step-label">Order Placed</div>
+                <div class="step-desc">Received by system</div>
+            </div>
+
+            <!-- Step 2: Accepted -->
+            <div class="timeline-step"
+                 th:classappend="${order.orderStatus == 'ACCEPTED' or order.orderStatus == 'PREPARING' or order.orderStatus == 'OUT_FOR_DELIVERY' or order.orderStatus == 'DELIVERED'} ? 'completed' : ''">
+                <div class="step-icon">👨‍🍳</div>
+                <div class="step-label">Accepted</div>
+                <div class="step-desc">Restaurant confirmed</div>
+            </div>
+
+            <!-- Step 3: Preparing -->
+            <div class="timeline-step"
+                 th:classappend="${order.orderStatus == 'PREPARING' or order.orderStatus == 'OUT_FOR_DELIVERY' or order.orderStatus == 'DELIVERED'} ? 'completed' : (${order.orderStatus == 'ACCEPTED'} ? 'active' : '')">
+                <div class="step-icon">🍳</div>
+                <div class="step-label">Preparing</div>
+                <div class="step-desc">Cooking fresh</div>
+            </div>
+
+            <!-- Step 4: Out for Delivery -->
+            <div class="timeline-step"
+                 th:classappend="${order.orderStatus == 'OUT_FOR_DELIVERY' or order.orderStatus == 'DELIVERED'} ? 'completed' : (${order.orderStatus == 'PREPARING'} ? 'active' : '')">
+                <div class="step-icon">🛵</div>
+                <div class="step-label">On The Way</div>
+                <div class="step-desc">Delivery partner dispatched</div>
+            </div>
+
+            <!-- Step 5: Delivered -->
+            <div class="timeline-step"
+                 th:classappend="${order.orderStatus == 'DELIVERED'} ? 'completed' : (${order.orderStatus == 'OUT_FOR_DELIVERY'} ? 'active' : '')">
+                <div class="step-icon">🎉</div>
+                <div class="step-label">Delivered</div>
+                <div class="step-desc">Enjoy your meal!</div>
+            </div>
+        </div>
+
+        <!-- Delivery Partner Information Banner -->
+        <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin: 30px 0;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                    🛵
+                </div>
+                <div>
+                    <h4 style="font-size: 1rem; font-weight: 700; color: var(--secondary);">FoodExpress Delivery Partner</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Assigned Rider: Rajesh Kumar &bull; Contact: +91 98877 66554</p>
+                </div>
+            </div>
+            <div>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Estimated Delivery:</span>
+                <strong style="color: var(--primary); font-size: 1.1rem; display: block;" th:text="${#temporals.format(order.estimatedDeliveryTime, 'hh:mm a')}">35 Mins</strong>
+            </div>
+        </div>
+
+        <!-- Order Items Detail List -->
+        <div style="border-top: 1px solid var(--border-color); padding-top: 24px;">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--secondary); margin-bottom: 14px;">
+                Order Summary &amp; Bill
+            </h3>
+            <div style="background: white; border: 1px solid var(--border-color); border-radius: var(--radius-md); overflow: hidden;">
+                <div th:each="it : ${order.orderItems}" style="display: flex; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <strong th:text="${it.quantity}">1</strong> &times; <span th:text="${it.foodName}">Dish</span>
+                    </div>
+                    <div>₹<span th:text="${#numbers.formatDecimal(it.subtotal, 1, 2)}">0.00</span></div>
+                </div>
+                <div style="padding: 14px 18px; background: #f8fafc; display: flex; justify-content: space-between; font-weight: 800; font-size: 1.1rem; color: var(--secondary);">
+                    <span>Total Paid:</span>
+                    <span style="color: var(--primary);">₹<span th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)}">0.00</span></span>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 28px; text-align: center;">
+            <a th:href="@{/my-orders}" class="btn btn-outline">
+                &larr; Back to My Orders
+            </a>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

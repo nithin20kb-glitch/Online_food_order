@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+
+<aside th:fragment="sidebar(activeTab)" class="admin-sidebar">
+    <div class="sidebar-header">
+        <span style="font-size: 1.5rem;">⚡</span>
+        <div class="sidebar-logo">
+            Food<span>Express</span>
+        </div>
+        <span class="sidebar-badge">Admin</span>
+    </div>
+
+    <ul class="sidebar-nav">
+        <li class="sidebar-item" th:classappend="${activeTab == 'dashboard'} ? 'active' : ''">
+            <a th:href="@{/admin/dashboard}">
+                <span>📊</span> <span>Dashboard</span>
+            </a>
+        </li>
+        <li class="sidebar-item" th:classappend="${activeTab == 'foods'} ? 'active' : ''">
+            <a th:href="@{/admin/foods}">
+                <span>🍔</span> <span>Manage Foods</span>
+            </a>
+        </li>
+        <li class="sidebar-item" th:classappend="${activeTab == 'categories'} ? 'active' : ''">
+            <a th:href="@{/admin/categories}">
+                <span>📁</span> <span>Categories</span>
+            </a>
+        </li>
+        <li class="sidebar-item" th:classappend="${activeTab == 'orders'} ? 'active' : ''">
+            <a th:href="@{/admin/orders}">
+                <span>📦</span> <span>Customer Orders</span>
+            </a>
+        </li>
+        <li class="sidebar-item" th:classappend="${activeTab == 'customers'} ? 'active' : ''">
+            <a th:href="@{/admin/customers}">
+                <span>👥</span> <span>Customers</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="sidebar-footer">
+        <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 8px;">Switch Views</div>
+        <a th:href="@{/}" target="_blank" style="color: #cbd5e1; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <span>🌐</span> <span>Open Website &rarr;</span>
+        </a>
+        <form th:action="@{/logout}" method="post" style="margin: 0;">
+            <button type="submit" style="background: none; border: none; color: #f87171; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 0;">
+                <span>🚪</span> <span>Log Out</span>
+            </button>
+        </form>
+    </div>
+</aside>
+
+</body>
+</html>

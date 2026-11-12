@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard – FoodExpress</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+
+<!-- Sidebar -->
+<div th:replace="~{admin/sidebar :: sidebar('dashboard')}"></div>
+
+<!-- Main Content -->
+<main class="admin-main">
+    <!-- Header -->
+    <div class="admin-header">
+        <div>
+            <h1 class="admin-title">Executive Dashboard</h1>
+            <p style="color: var(--admin-text-muted); font-size: 0.95rem;">Real-time restaurant operations, live sales, and dispatch monitoring</p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <a th:href="@{/admin/foods/new}" class="btn btn-primary btn-sm">
+                <span>+</span> Add Food Item
+            </a>
+            <a th:href="@{/admin/orders}" class="btn btn-outline btn-sm">
+                View All Orders &rarr;
+            </a>
+        </div>
+    </div>
+
+    <!-- Flash Alerts -->
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${warningMessage}" class="alert alert-warning" th:text="${warningMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <!-- KPI Metric Cards Grid -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon orders">📦</div>
+            <div>
+                <div class="kpi-value" th:text="${totalOrders}">0</div>
+                <div class="kpi-label">Total Customer Orders</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon sales">💰</div>
+            <div>
+                <div class="kpi-value">₹<span th:text="${#numbers.formatDecimal(totalSales, 1, 2)}">0.00</span></div>
+                <div class="kpi-label">Total Gross Revenue</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon customers">👥</div>
+            <div>
+                <div class="kpi-value" th:text="${totalCustomers}">0</div>
+                <div class="kpi-label">Registered Customers</div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon foods">🍔</div>
+            <div>
+                <div class="kpi-value"><span th:text="${activeFoods}">0</span> / <span th:text="${totalFoods}" style="font-size: 1.2rem; color: #94a3b8;">0</span></div>
+                <div class="kpi-label">Active / Total Foods</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders Table -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <div>
+                <h3 class="data-card-title">Recent Customer Orders</h3>
+                <p style="font-size: 0.85rem; color: var(--admin-text-muted);">Instant status update &amp; fulfillment dispatch</p>
+            </div>
+            <a th:href="@{/admin/orders}" class="btn btn-outline btn-sm">View Full Order Book &rarr;</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Tracking ID</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Amount</th>
+                        <th>Payment</th>
+                        <th>Current Status</th>
+                        <th>Quick Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${recentOrders.isEmpty()}">
+                        <td colspan="7" style="text-align: center; padding: 30px; color: #94a3b8;">
+                            No recent orders recorded yet.
+                        </td>
+                    </tr>
+                    <tr th:each="ord : ${recentOrders}">
+                        <td>
+                            <strong style="font-family: monospace;" th:text="${ord.orderTrackingNumber}">FX-ORD-1001</strong>
+                            <div style="font-size: 0.75rem; color: var(--admin-text-muted);" th:text="${#temporals.format(ord.orderDate, 'dd MMM, hh:mm a')}">Time</div>
+                        </td>
+                        <td>
+                            <strong th:text="${ord.customerName}">Rahul</strong>
+                            <div style="font-size: 0.75rem; color: var(--admin-text-muted);" th:text="${ord.deliveryCity}">City</div>
+                        </td>
+                        <td>
+                            <span th:text="${ord.orderItems.size()}">1</span> items
+                        </td>
+                        <td>
+                            <strong>₹<span th:text="${#numbers.formatDecimal(ord.totalAmount, 1, 2)}">0.00</span></strong>
+                        </td>
+                        <td>
+                            <span class="status-pill" th:classappend="'status-' + ${ord.paymentStatus}" th:text="${ord.paymentStatus}">PAID</span>
+                        </td>
+                        <td>
+                            <span class="status-pill" th:classappend="'status-' + ${ord.orderStatus}" th:text="${ord.orderStatus}">PLACED</span>
+                        </td>
+                        <td>
+                            <!-- Fast Status Update Form -->
+                            <form th:action="@{/admin/orders/update-status}" method="post" style="display: flex; gap: 6px; align-items: center; margin: 0;">
+                                <input type="hidden" name="orderId" th:value="${ord.id}">
+                                <input type="hidden" name="reason" value="">
+                                <select name="status" class="form-control admin-order-status-select" style="padding: 4px 8px; font-size: 0.8rem; width: auto;">
+                                    <option value="PLACED" th:selected="${ord.orderStatus == 'PLACED'}">PLACED</option>
+                                    <option value="ACCEPTED" th:selected="${ord.orderStatus == 'ACCEPTED'}">ACCEPTED</option>
+                                    <option value="PREPARING" th:selected="${ord.orderStatus == 'PREPARING'}">PREPARING</option>
+                                    <option value="OUT_FOR_DELIVERY" th:selected="${ord.orderStatus == 'OUT_FOR_DELIVERY'}">OUT_FOR_DELIVERY</option>
+                                    <option value="DELIVERED" th:selected="${ord.orderStatus == 'DELIVERED'}">DELIVERED</option>
+                                    <option value="REJECTED_REFUNDED" th:selected="${ord.orderStatus == 'REJECTED_REFUNDED'}">REJECT (REFUND)</option>
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/admin.js}"></script>
+</body>
+</html>

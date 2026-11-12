@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us – FoodExpress Online Food Ordering</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container" style="padding: 60px 20px;">
+    <div style="max-width: 860px; margin: 0 auto; background: white; padding: 48px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <span style="background: var(--primary-light); color: var(--primary); font-weight: 800; font-size: 0.85rem; padding: 6px 14px; border-radius: var(--radius-full); text-transform: uppercase;">
+                Our Mission &amp; Vision
+            </span>
+            <h1 style="font-size: 2.5rem; font-weight: 800; color: var(--secondary); margin-top: 14px;">
+                Redefining the Online Dining Experience
+            </h1>
+            <p style="color: var(--text-muted); font-size: 1.1rem; margin-top: 8px;">
+                Delicious meals delivered to your doorstep within 30 minutes from top culinary kitchens.
+            </p>
+        </div>
+
+        <div style="margin-bottom: 36px; line-height: 1.8; color: #334155; font-size: 1.05rem;">
+            <p style="margin-bottom: 20px;">
+                <strong>FoodExpress</strong> was founded with a singular purpose: to bridge the gap between hungry food lovers and local restaurant kitchens using cutting-edge software engineering. Our system handles everything from location-aware restaurant discovery, dynamic category browsing, live cart calculations, secure payment gateways, to instant order tracking.
+            </p>
+            <p style="margin-bottom: 20px;">
+                Built on robust Java 21, Spring Boot 3, and MySQL architecture, FoodExpress showcases enterprise-level design patterns, responsive user interfaces, and automated lifecycle tracking for orders from placement to doorstep fulfillment.
+            </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-top: 40px; text-align: center;">
+            <div style="background: #f8fafc; padding: 24px; border-radius: 12px; border: 1px solid var(--border-color);">
+                <div style="font-size: 2.2rem; font-weight: 800; color: var(--primary);">10,000+</div>
+                <div style="color: var(--text-muted); font-weight: 600; font-size: 0.9rem; margin-top: 4px;">Orders Successfully Delivered</div>
+            </div>
+            <div style="background: #f8fafc; padding: 24px; border-radius: 12px; border: 1px solid var(--border-color);">
+                <div style="font-size: 2.2rem; font-weight: 800; color: var(--accent);">30 Min</div>
+                <div style="color: var(--text-muted); font-weight: 600; font-size: 0.9rem; margin-top: 4px;">Average Doorstep ETA</div>
+            </div>
+            <div style="background: #f8fafc; padding: 24px; border-radius: 12px; border: 1px solid var(--border-color);">
+                <div style="font-size: 2.2rem; font-weight: 800; color: var(--success);">4.8 ★</div>
+                <div style="color: var(--text-muted); font-weight: 600; font-size: 0.9rem; margin-top: 4px;">Customer Satisfaction Rating</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 48px; text-align: center;">
+            <a th:href="@{/menu}" class="btn btn-primary btn-lg">Browse Today's Fresh Menu &rarr;</a>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

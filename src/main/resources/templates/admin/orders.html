@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders – FoodExpress Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+
+<div th:replace="~{admin/sidebar :: sidebar('orders')}"></div>
+
+<main class="admin-main">
+    <div class="admin-header">
+        <div>
+            <h1 class="admin-title">Customer Order Book</h1>
+            <p style="color: var(--admin-text-muted); font-size: 0.95rem;">Manage order lifecycle, track deliveries, and dispatch kitchen items</p>
+        </div>
+    </div>
+
+    <!-- Flash Alerts -->
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${warningMessage}" class="alert alert-warning" th:text="${warningMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <!-- Status Filter Buttons Bar -->
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px;">
+        <a th:href="@{/admin/orders(status='ALL')}" class="btn btn-sm"
+           th:classappend="${selectedStatus == 'ALL'} ? 'btn-primary' : 'btn-outline'">All Orders</a>
+        <a th:href="@{/admin/orders(status='PLACED')}" class="btn btn-sm"
+           th:classappend="${selectedStatus == 'PLACED'} ? 'btn-primary' : 'btn-outline'">Placed</a>
+        <a th:href="@{/admin/orders(status='ACCEPTED')}" class="btn btn-sm"
+           th:classappend="${selectedStatus == 'ACCEPTED'} ? 'btn-primary' : 'btn-outline'">Accepted</a>
+        <a th:href="@{/admin/orders(status='PREPARING')}" class="btn btn-sm"
+           th:classappend="${selectedStatus == 'PREPARING'} ? 'btn-primary' : 'btn-outline'">Preparing</a>
+        <a th:href="@{/admin/orders(status='OUT_FOR_DELIVERY')}" class="btn btn-sm"
+           th:classappend="${selectedStatus == 'OUT_FOR_DELIVERY'} ? 'btn-primary' : 'btn-outline'">Out for Delivery</a>
+        <a th:href="@{/admin/orders(status='DELIVERED')}" class="btn btn-sm"
+           th:classappend="${selectedStatus == 'DELIVERED'} ? 'btn-primary' : 'btn-outline'">Delivered</a>
+        <a th:href="@{/admin/orders(status='REJECTED_REFUNDED')}" class="btn btn-sm"
+           th:classappend="${selectedStatus == 'REJECTED_REFUNDED'} ? 'btn-primary' : 'btn-outline'">Rejected / Refunded</a>
+    </div>
+
+    <!-- Orders Data Card -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <h3 class="data-card-title">Orders (<span th:text="${orders.size()}">0</span>)</h3>
+            <div style="width: 250px;">
+                <input type="text" id="tableSearchInput" placeholder="Filter by customer, ID or city..." class="form-control" style="padding: 6px 12px; font-size: 0.85rem;">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Order ID / Time</th>
+                        <th>Customer &amp; Address</th>
+                        <th>Items Breakdown</th>
+                        <th>Billing &amp; Payment</th>
+                        <th>Live Status</th>
+                        <th>Update Lifecycle Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${orders.isEmpty()}">
+                        <td colspan="6" style="text-align: center; padding: 40px; color: #94a3b8;">
+                            No orders found under this status filter.
+                        </td>
+                    </tr>
+                    <tr th:each="ord : ${orders}" class="searchable-row">
+                        <td>
+                            <strong style="font-family: monospace; color: var(--admin-primary);" th:text="${ord.orderTrackingNumber}">FX-ORD-1001</strong>
+                            <div style="font-size: 0.75rem; color: var(--admin-text-muted);" th:text="${#temporals.format(ord.orderDate, 'dd MMM yyyy, hh:mm a')}">Time</div>
+                            <div th:if="${ord.couponCode != null}" style="font-size: 0.7rem; color: #16a34a; font-weight: 700;">
+                                Coupon: <span th:text="${ord.couponCode}">WELCOME50</span>
+                            </div>
+                        </td>
+                        <td>
+                            <strong th:text="${ord.customerName}">Rahul Sharma</strong>
+                            <div style="font-size: 0.8rem; color: #475569;">📞 <span th:text="${ord.customerPhone}">9812345678</span></div>
+                            <div style="font-size: 0.75rem; color: var(--admin-text-muted);" th:text="${ord.deliveryAddress + ', ' + ord.deliveryCity}">Indiranagar</div>
+                            <div th:if="${ord.orderNotes != null and !ord.orderNotes.isEmpty()}" style="font-size: 0.75rem; color: #b45309; background: #fef3c7; padding: 2px 6px; border-radius: 4px; margin-top: 4px;">
+                                Note: <span th:text="${ord.orderNotes}">Extra spicy</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div th:each="it : ${ord.orderItems}" style="font-size: 0.85rem; margin-bottom: 2px;">
+                                <strong th:text="${it.quantity}">1</strong>&times; <span th:text="${it.foodName}">Biryani</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 800; font-size: 1rem; color: var(--admin-text-dark);">
+                                ₹<span th:text="${#numbers.formatDecimal(ord.totalAmount, 1, 2)}">0.00</span>
+                            </div>
+                            <span class="status-pill" th:classappend="'status-' + ${ord.paymentStatus}" th:text="${ord.paymentStatus + ' (' + ord.paymentMethod + ')'}">PAID</span>
+                        </td>
+                        <td>
+                            <span class="status-pill" th:classappend="'status-' + ${ord.orderStatus}" th:text="${ord.orderStatus}">
+                                PLACED
+                            </span>
+                            <div th:if="${ord.rejectionReason != null}" style="font-size: 0.75rem; color: #dc2626; margin-top: 4px;">
+                                Reason: <span th:text="${ord.rejectionReason}">Overload</span>
+                            </div>
+                        </td>
+                        <td>
+                            <form th:action="@{/admin/orders/update-status}" method="post" style="margin: 0;">
+                                <input type="hidden" name="orderId" th:value="${ord.id}">
+                                <input type="hidden" name="reason" value="">
+                                <select name="status" class="form-control admin-order-status-select" style="padding: 6px 10px; font-size: 0.85rem;">
+                                    <option value="PLACED" th:selected="${ord.orderStatus == 'PLACED'}">1. PLACED</option>
+                                    <option value="ACCEPTED" th:selected="${ord.orderStatus == 'ACCEPTED'}">2. ACCEPTED (Kitchen)</option>
+                                    <option value="PREPARING" th:selected="${ord.orderStatus == 'PREPARING'}">3. PREPARING (Cooking)</option>
+                                    <option value="OUT_FOR_DELIVERY" th:selected="${ord.orderStatus == 'OUT_FOR_DELIVERY'}">4. OUT FOR DELIVERY</option>
+                                    <option value="DELIVERED" th:selected="${ord.orderStatus == 'DELIVERED'}">5. DELIVERED (Fulfilled)</option>
+                                    <option value="REJECTED_REFUNDED" th:selected="${ord.orderStatus == 'REJECTED_REFUNDED'}">❌ REJECT &amp; REFUND</option>
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/admin.js}"></script>
+</body>
+</html>

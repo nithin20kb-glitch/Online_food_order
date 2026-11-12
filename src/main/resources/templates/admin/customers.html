@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Directory – FoodExpress Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+
+<div th:replace="~{admin/sidebar :: sidebar('customers')}"></div>
+
+<main class="admin-main">
+    <div class="admin-header">
+        <div>
+            <h1 class="admin-title">Registered Customers Directory</h1>
+            <p style="color: var(--admin-text-muted); font-size: 0.95rem;">Review registered customer accounts, contact details, and locations</p>
+        </div>
+    </div>
+
+    <div class="data-card">
+        <div class="data-card-header">
+            <h3 class="data-card-title">Customers (<span th:text="${customers.size()}">0</span>)</h3>
+            <div style="width: 250px;">
+                <input type="text" id="tableSearchInput" placeholder="Search customer by name or email..." class="form-control" style="padding: 6px 12px; font-size: 0.85rem;">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Customer Name</th>
+                        <th>Email Address</th>
+                        <th>Phone</th>
+                        <th>Delivery Address</th>
+                        <th>City / Area</th>
+                        <th>PIN</th>
+                        <th>Member Since</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${customers.isEmpty()}">
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;">
+                            No customer accounts found.
+                        </td>
+                    </tr>
+                    <tr th:each="cust : ${customers}" class="searchable-row">
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                                    👤
+                                </div>
+                                <strong th:text="${cust.fullName}">Rahul Sharma</strong>
+                            </div>
+                        </td>
+                        <td th:text="${cust.email}">rahul@example.com</td>
+                        <td th:text="${cust.phone}">9812345678</td>
+                        <td style="font-size: 0.85rem;" th:text="${cust.deliveryAddress}">Indiranagar</td>
+                        <td><span class="status-pill" style="background: #f1f5f9; color: #334155;" th:text="${cust.city}">Metro City</span></td>
+                        <td style="font-family: monospace;" th:text="${cust.postalCode}">560038</td>
+                        <td style="font-size: 0.85rem; color: var(--admin-text-muted);" th:text="${#temporals.format(cust.createdAt, 'dd MMM yyyy')}">Date</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/admin.js}"></script>
+</body>
+</html>

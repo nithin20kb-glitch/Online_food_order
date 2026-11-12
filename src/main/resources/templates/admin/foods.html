@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Food Items – FoodExpress Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+
+<div th:replace="~{admin/sidebar :: sidebar('foods')}"></div>
+
+<main class="admin-main">
+    <div class="admin-header">
+        <div>
+            <h1 class="admin-title">Manage Food Catalog</h1>
+            <p style="color: var(--admin-text-muted); font-size: 0.95rem;">Configure dishes, adjust prices, and toggle in-stock availability</p>
+        </div>
+        <a th:href="@{/admin/foods/new}" class="btn btn-primary">
+            <span>+</span> Add New Food Item
+        </a>
+    </div>
+
+    <!-- Flash Alerts -->
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${infoMessage}" class="alert alert-info" th:text="${infoMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div class="data-card">
+        <div class="data-card-header" style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <!-- Real-time Filter -->
+            <div style="flex: 1; min-width: 260px;">
+                <input type="text" id="tableSearchInput" placeholder="Quick filter by food name or category..." class="form-control" style="padding: 8px 14px; font-size: 0.9rem;">
+            </div>
+            <div>
+                Total: <strong th:text="${foodItems.size()}">0</strong> Dishes
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">Image</th>
+                        <th>Dish Name</th>
+                        <th>Category</th>
+                        <th>Restaurant</th>
+                        <th>Price</th>
+                        <th>Diet</th>
+                        <th>In Stock Toggle</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${foodItems.isEmpty()}">
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #94a3b8;">
+                            No food items found. Click "+ Add New Food Item" to create one.
+                        </td>
+                    </tr>
+                    <tr th:each="food : ${foodItems}" class="searchable-row">
+                        <td>
+                            <img th:src="${food.imageUrl}" th:alt="${food.name}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">
+                        </td>
+                        <td>
+                            <strong th:text="${food.name}">Food Name</strong>
+                            <div style="font-size: 0.75rem; color: var(--admin-text-muted);" th:text="${#strings.abbreviate(food.description, 60)}">Short description</div>
+                        </td>
+                        <td>
+                            <span class="status-pill" style="background: #f1f5f9; color: #475569;" th:text="${food.category != null ? food.category.name : 'General'}">Category</span>
+                        </td>
+                        <td style="font-size: 0.85rem;" th:text="${food.restaurant != null ? food.restaurant.name : 'Kitchen'}">Restaurant</td>
+                        <td>
+                            <strong style="color: var(--admin-primary); font-size: 1rem;">₹<span th:text="${#numbers.formatDecimal(food.price, 1, 2)}">0.00</span></strong>
+                        </td>
+                        <td>
+                            <span class="diet-indicator" th:classappend="${food.vegetarian ? 'veg' : 'non-veg'}"></span>
+                        </td>
+                        <td>
+                            <!-- Fast Toggle Form -->
+                            <form th:action="@{/admin/foods/toggle/{id}(id=${food.id})}" method="post" style="margin: 0;">
+                                <label class="switch">
+                                    <input type="checkbox" class="stock-toggle-checkbox" th:checked="${food.available}">
+                                    <span class="slider"></span>
+                                </label>
+                                <span style="font-size: 0.8rem; margin-left: 6px; font-weight: 600;"
+                                      th:styleappend="${food.available} ? 'color: #16a34a;' : 'color: #dc2626;'"
+                                      th:text="${food.available ? 'In Stock' : 'Out of Stock'}">
+                                    In Stock
+                                </span>
+                            </form>
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                <a th:href="@{/admin/foods/edit/{id}(id=${food.id})}" class="btn btn-outline btn-sm">
+                                    ✏️ Edit
+                                </a>
+                                <form th:action="@{/admin/foods/delete/{id}(id=${food.id})}" method="post" onsubmit="return confirm('Are you sure you want to permanently delete this food item?');" style="margin: 0;">
+                                    <button type="submit" class="btn btn-danger btn-sm" style="padding: 6px 10px;">
+                                        🗑️
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/admin.js}"></script>
+</body>
+</html>

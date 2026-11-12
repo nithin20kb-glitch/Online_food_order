@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders – FoodExpress</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container" style="padding: 40px 20px;">
+    <h1 style="font-size: 2rem; font-weight: 800; color: var(--secondary); margin-bottom: 8px;">My Orders History</h1>
+    <p style="color: var(--text-muted); margin-bottom: 28px;">View details of all your current and previous food deliveries.</p>
+
+    <!-- Empty State -->
+    <div th:if="${orders.isEmpty()}" style="text-align: center; padding: 60px 20px; background: white; border-radius: var(--radius-lg); border: 1px dashed var(--border-color);">
+        <div style="font-size: 3.5rem; margin-bottom: 12px;">📦</div>
+        <h3 style="font-size: 1.4rem; font-weight: 700; color: var(--secondary); margin-bottom: 8px;">No Orders Placed Yet</h3>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">You haven't ordered any delicious food yet. Check out today's menu!</p>
+        <a th:href="@{/menu}" class="btn btn-primary">Browse Menu &amp; Order</a>
+    </div>
+
+    <!-- Orders Cards List -->
+    <div th:unless="${orders.isEmpty()}" style="display: flex; flex-direction: column; gap: 20px;">
+        <div th:each="ord : ${orders}" style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 16px;">
+                <div>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Order Number</span>
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--secondary); font-family: monospace;" th:text="${ord.orderTrackingNumber}">FX-ORD-20261109-1001</h3>
+                    <span style="font-size: 0.85rem; color: #64748b;" th:text="${#temporals.format(ord.orderDate, 'dd MMMM yyyy, hh:mm a')}">Date</span>
+                </div>
+
+                <div style="text-align: right;">
+                    <span class="status-pill" th:classappend="'status-' + ${ord.orderStatus}" th:text="${ord.orderStatus}">
+                        DELIVERED
+                    </span>
+                    <div style="font-size: 0.8rem; color: #16a34a; font-weight: 700; margin-top: 4px;" th:text="'Payment: ' + ${ord.paymentStatus}">
+                        Payment: PAID
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items -->
+            <div style="margin-bottom: 16px;">
+                <div th:each="it : ${ord.orderItems}" style="display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 6px;">
+                    <div>
+                        <strong th:text="${it.quantity}">1</strong> &times; <span th:text="${it.foodName}">Hyderabadi Biryani</span>
+                    </div>
+                    <div style="color: #64748b;">₹<span th:text="${#numbers.formatDecimal(it.subtotal, 1, 2)}">0.00</span></div>
+                </div>
+            </div>
+
+            <!-- Footer of card -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 16px; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Total Paid: </span>
+                    <strong style="font-size: 1.2rem; color: var(--primary);">₹<span th:text="${#numbers.formatDecimal(ord.totalAmount, 1, 2)}">0.00</span></strong>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <a th:href="@{/track/{num}(num=${ord.orderTrackingNumber})}" class="btn btn-primary btn-sm">
+                        📍 Track Order &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

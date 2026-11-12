@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodExpress – Online Food Ordering &amp; Fast Delivery</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Flash Alerts -->
+<div class="container" style="margin-top: 16px;">
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+    <div th:if="${infoMessage}" class="alert alert-info" th:text="${infoMessage}"></div>
+</div>
+
+<!-- Hero Section with Restaurant Background and Location Delivery Finder -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>🔥 Superfast 30-Min Delivery</span>
+            </div>
+            <h1 class="hero-title">
+                Delicious Food Delivered <span>Hot &amp; Fresh</span> To Your Door
+            </h1>
+            <p class="hero-subtitle">
+                Craving biryani, hand-tossed artisan pizza, spicy noodles or sweet desserts? Explore curated local restaurant kitchens delivering to your area right now.
+            </p>
+
+            <!-- Location & Search Finder (Direct Requirement from Specification Sheet) -->
+            <form id="heroSearchForm" th:action="@{/menu}" method="get" class="hero-search-box">
+                <div class="search-input-group">
+                    <span style="font-size: 1.2rem;">📍</span>
+                    <select id="heroLocationSelect" name="location">
+                        <option value="all">Deliver to: All Locations</option>
+                        <option value="Indiranagar" th:selected="${selectedLocation == 'Indiranagar'}">Indiranagar (Hub 1)</option>
+                        <option value="Whitefield" th:selected="${selectedLocation == 'Whitefield'}">Whitefield (Tech Zone)</option>
+                        <option value="Koramangala" th:selected="${selectedLocation == 'Koramangala'}">Koramangala (Central)</option>
+                        <option value="MG Road" th:selected="${selectedLocation == 'MG Road'}">MG Road (Downtown)</option>
+                    </select>
+                </div>
+                <div class="search-divider"></div>
+                <div class="search-input-group">
+                    <span style="font-size: 1.2rem;">🔍</span>
+                    <input type="text" name="q" placeholder="Search dish, biryani, pizza, burger...">
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg" style="white-space: nowrap;">
+                    Find Food
+                </button>
+            </form>
+
+            <!-- Metrics bar -->
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <h4>30 Mins</h4>
+                    <p>Average Delivery Time</p>
+                </div>
+                <div class="stat-item">
+                    <h4>4.8 ★</h4>
+                    <p>Over 10,000+ Happy Foodies</p>
+                </div>
+                <div class="stat-item">
+                    <h4>100%</h4>
+                    <p>Hygienic &amp; Contactless</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Promotional Coupon Banner -->
+<section style="background-color: #fff9e6; border-bottom: 1px solid #fef3c7; padding: 14px 0;">
+    <div class="container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px; font-weight: 700; color: #b45309;">
+            <span style="font-size: 1.4rem;">🎉</span>
+            <span>Use Coupon Code <strong style="background: #fde68a; padding: 2px 8px; border-radius: 4px; font-family: monospace;">WELCOME50</strong> for 50% OFF up to ₹100!</span>
+        </div>
+        <a th:href="@{/menu}" class="btn btn-outline btn-sm" style="border-color: #d97706; color: #b45309;">
+            Order Now &rarr;
+        </a>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Explore by Category</h2>
+                <p class="section-subtitle">Discover handcrafted culinary delights across diverse cuisines</p>
+            </div>
+            <a th:href="@{/menu}" class="btn btn-outline btn-sm">View Full Menu &rarr;</a>
+        </div>
+
+        <div class="categories-grid">
+            <div th:each="cat : ${categories}" class="category-card">
+                <a th:href="@{/menu(category=${cat.slug})}">
+                    <img th:src="${cat.imageUrl}" th:alt="${cat.name}" class="category-img">
+                    <div class="category-name" th:text="${cat.name}">Category Name</div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Dishes & Popular Items -->
+<section class="section" style="background-color: #ffffff; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Chef's Featured Delicacies</h2>
+                <p class="section-subtitle">Top rated culinary masterpieces prepared fresh to order</p>
+            </div>
+            <a th:href="@{/menu}" class="btn btn-outline btn-sm">Explore All Dishes &rarr;</a>
+        </div>
+
+        <div class="food-grid">
+            <div th:each="dish : ${featuredDishes}" class="food-card">
+                <div class="food-img-wrapper">
+                    <img th:src="${dish.imageUrl}" th:alt="${dish.name}" class="food-img">
+                    <!-- Rating Badge -->
+                    <div class="food-badge-rating">
+                        <span>★</span>
+                        <span th:text="${dish.rating}">4.8</span>
+                    </div>
+                    <!-- Veg / Non-Veg Indicator -->
+                    <div class="food-badge-diet">
+                        <span class="diet-indicator" th:classappend="${dish.vegetarian ? 'veg' : 'non-veg'}"></span>
+                    </div>
+                </div>
+
+                <div class="food-content">
+                    <div class="food-restaurant" th:text="${dish.restaurant != null ? dish.restaurant.name : 'FoodExpress Kitchen'}">
+                        FoodExpress Signature
+                    </div>
+                    <a th:href="@{/food/{id}(id=${dish.id})}">
+                        <h3 class="food-title" th:text="${dish.name}">Hyderabadi Chicken Biryani</h3>
+                    </a>
+                    <p class="food-desc" th:text="${dish.description}">Aromatic long grain basmati rice slow-cooked with spiced meat.</p>
+
+                    <div class="food-footer">
+                        <div class="food-price">₹<span th:text="${#numbers.formatDecimal(dish.price, 1, 2)}">320.00</span></div>
+
+                        <!-- Add to Cart or Out of Stock -->
+                        <div th:if="${dish.available}">
+                            <form th:action="@{/cart/add}" method="post" style="margin: 0;">
+                                <input type="hidden" name="foodId" th:value="${dish.id}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <span>+ Add</span>
+                                </button>
+                            </form>
+                        </div>
+                        <div th:unless="${dish.available}">
+                            <span class="out-of-stock-badge">Out of Stock</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Nearby Partner Restaurants (Requirement Sheet Feature) -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Featured Kitchens &amp; Restaurants</h2>
+                <p class="section-subtitle">Delivering to your location with active kitchen status</p>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
+            <div th:each="r : ${restaurants}" class="food-card" style="border-radius: var(--radius-lg);">
+                <div style="height: 160px; overflow: hidden; position: relative;">
+                    <img th:src="${r.imageUrl}" th:alt="${r.name}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <span style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">
+                        ⏱️ <span th:text="${r.deliveryTimeMinutes}">30</span> mins
+                    </span>
+                </div>
+                <div style="padding: 18px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                        <h4 style="font-size: 1.15rem; font-weight: 700;" th:text="${r.name}">Restaurant Name</h4>
+                        <span style="background: #2ed573; color: white; font-weight: 800; font-size: 0.8rem; padding: 2px 6px; border-radius: 4px;">
+                            ★ <span th:text="${r.rating}">4.8</span>
+                        </span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;" th:text="${r.cuisineType}">North Indian, Biryani</p>
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 14px;">📍 <span th:text="${r.locationArea}">Indiranagar</span> &bull; Min Order ₹<span th:text="${r.minOrderAmount}">150</span></p>
+                    <a th:href="@{/menu(restaurant=${r.id})}" class="btn btn-outline btn-sm btn-block">
+                        View Restaurant Menu &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose FoodExpress Feature Badges -->
+<section style="background-color: #ffffff; padding: 60px 0; border-top: 1px solid var(--border-color);">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 30px; text-align: center;">
+            <div style="padding: 20px;">
+                <div style="font-size: 3rem; margin-bottom: 12px;">⚡</div>
+                <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">Superfast Delivery</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Hot meals dispatched immediately with state-of-the-art insulated delivery bags.</p>
+            </div>
+            <div style="padding: 20px;">
+                <div style="font-size: 3rem; margin-bottom: 12px;">🛡️</div>
+                <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">100% Hygiene Standard</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Daily kitchen sanitation and food safety checks ensuring peak culinary quality.</p>
+            </div>
+            <div style="padding: 20px;">
+                <div style="font-size: 3rem; margin-bottom: 12px;">📍</div>
+                <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">Live Order Tracking</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Follow your food from the wok to the delivery rider in real time with status updates.</p>
+            </div>
+            <div style="padding: 20px;">
+                <div style="font-size: 3rem; margin-bottom: 12px;">💳</div>
+                <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">Seamless Checkout</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Pay with Card, instant UPI, Net Banking or Cash on Delivery with full safety.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

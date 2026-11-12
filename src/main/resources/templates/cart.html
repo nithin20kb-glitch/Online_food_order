@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart – FoodExpress</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container" style="padding: 30px 20px;">
+    <!-- Flash Alerts -->
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+    <div th:if="${infoMessage}" class="alert alert-info" th:text="${infoMessage}"></div>
+
+    <h1 style="font-size: 2rem; font-weight: 800; color: var(--secondary); margin-bottom: 8px;">Shopping Cart</h1>
+    <p style="color: var(--text-muted); margin-bottom: 24px;">Review your chosen dishes, apply coupons, and proceed to checkout.</p>
+
+    <!-- Empty Cart State -->
+    <div th:if="${cart.isEmpty()}" style="text-align: center; padding: 70px 20px; background: white; border-radius: var(--radius-lg); border: 1px dashed var(--border-color); box-shadow: var(--shadow-sm);">
+        <div style="font-size: 4rem; margin-bottom: 16px;">🛒</div>
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--secondary); margin-bottom: 8px;">Your Cart is Empty</h2>
+        <p style="color: var(--text-muted); margin-bottom: 24px;">Looks like you haven't added any delicious food to your cart yet.</p>
+        <a th:href="@{/menu}" class="btn btn-primary btn-lg">Explore Menu &amp; Order Now &rarr;</a>
+    </div>
+
+    <!-- Active Cart Layout -->
+    <div th:unless="${cart.isEmpty()}" class="cart-layout">
+        <!-- Left Column: Items Table -->
+        <div class="cart-table-card">
+            <!-- Warning if any item became out of stock -->
+            <div th:if="${cart.hasUnavailableItems()}" class="alert alert-danger" style="margin-bottom: 20px;">
+                ⚠️ One or more items in your cart are currently out of stock. Please remove them before proceeding to checkout.
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 14px; margin-bottom: 10px;">
+                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--secondary);">
+                    Items in Cart (<span th:text="${cart.totalItemCount}">0</span>)
+                </h3>
+                <form th:action="@{/cart/clear}" method="post" onsubmit="return confirm('Clear your entire cart?');" style="margin: 0;">
+                    <button type="submit" class="btn btn-outline btn-sm" style="color: var(--danger); border-color: #fca5a5;">Clear Cart</button>
+                </form>
+            </div>
+
+            <!-- Items List -->
+            <div th:each="item : ${cart.itemsList}" class="cart-item-row">
+                <img th:src="${item.imageUrl}" th:alt="${item.foodName}" class="cart-item-img">
+
+                <div class="cart-item-info">
+                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--primary);" th:text="${item.restaurantName}">Kitchen</div>
+                    <h4 th:text="${item.foodName}">Dish Name</h4>
+                    <div style="font-size: 0.9rem; color: var(--text-muted);">₹<span th:text="${#numbers.formatDecimal(item.price, 1, 2)}">0.00</span> each</div>
+                    <div th:unless="${item.available}" style="color: var(--danger); font-size: 0.8rem; font-weight: 700; margin-top: 4px;">
+                        ⚠️ Currently Out of Stock
+                    </div>
+                </div>
+
+                <!-- Quantity Control Form -->
+                <div class="cart-qty-ctrl">
+                    <form th:action="@{/cart/update}" method="post" style="margin: 0;">
+                        <input type="hidden" name="foodId" th:value="${item.foodId}">
+                        <input type="hidden" name="quantity" th:value="${item.quantity - 1}">
+                        <button type="submit" class="cart-qty-btn" title="Decrease Quantity">&minus;</button>
+                    </form>
+                    <span class="cart-qty-val" th:text="${item.quantity}">1</span>
+                    <form th:action="@{/cart/update}" method="post" style="margin: 0;">
+                        <input type="hidden" name="foodId" th:value="${item.foodId}">
+                        <input type="hidden" name="quantity" th:value="${item.quantity + 1}">
+                        <button type="submit" class="cart-qty-btn" title="Increase Quantity">&plus;</button>
+                    </form>
+                </div>
+
+                <!-- Subtotal for this item -->
+                <div style="font-weight: 800; font-size: 1.1rem; color: var(--secondary); min-width: 90px; text-align: right;">
+                    ₹<span th:text="${#numbers.formatDecimal(item.subtotal, 1, 2)}">0.00</span>
+                </div>
+
+                <!-- Remove Item Form -->
+                <form th:action="@{/cart/remove}" method="post" style="margin: 0;">
+                    <input type="hidden" name="foodId" th:value="${item.foodId}">
+                    <button type="submit" style="background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer;" title="Remove Item">
+                        🗑️
+                    </button>
+                </form>
+            </div>
+
+            <!-- Continue Shopping Link -->
+            <div style="margin-top: 24px;">
+                <a th:href="@{/menu}" style="color: var(--primary); font-weight: 700; font-size: 0.95rem;">
+                    &larr; Add More Items from Menu
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Column: Order Summary & Coupon -->
+        <div class="summary-card">
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--secondary); margin-bottom: 20px;">Order Bill Details</h3>
+
+            <!-- Coupon Code Section -->
+            <div style="margin-bottom: 20px;">
+                <label style="font-size: 0.85rem; font-weight: 700; color: var(--secondary); display: block; margin-bottom: 6px;">Discount Coupon</label>
+                
+                <div th:if="${cart.appliedCoupon == null}">
+                    <form th:action="@{/cart/coupon/apply}" method="post" class="coupon-box" style="margin: 0 0 10px 0;">
+                        <input type="text" name="couponCode" placeholder="Enter coupon (e.g. WELCOME50)" required>
+                        <button type="submit" class="btn btn-outline btn-sm">Apply</button>
+                    </form>
+                </div>
+
+                <div th:if="${cart.appliedCoupon != null}" style="background: #eafaf1; border: 1px solid #a7f3d0; padding: 10px 14px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div>
+                        <strong style="color: #065f46;" th:text="${cart.appliedCoupon.code}">WELCOME50</strong>
+                        <span style="font-size: 0.8rem; color: #047857; display: block;" th:text="${cart.appliedCoupon.description}">Description</span>
+                    </div>
+                    <form th:action="@{/cart/coupon/remove}" method="post" style="margin: 0;">
+                        <button type="submit" style="background: none; border: none; color: #dc2626; font-size: 0.85rem; cursor: pointer; font-weight: 700;">Remove</button>
+                    </form>
+                </div>
+
+                <!-- Available Coupons Chips -->
+                <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 8px;">
+                    Available Coupons (Click to apply):
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px;">
+                        <span th:each="c : ${availableCoupons}"
+                              style="background: #f1f5f9; border: 1px dashed #cbd5e1; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-family: monospace; font-weight: 700;"
+                              th:text="${c.code}"
+                              th:onclick="'document.querySelector(\'input[name=couponCode]\').value = \'' + ${c.code} + '\';'">
+                            WELCOME50
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculation Rows -->
+            <div class="summary-row">
+                <span>Item Subtotal:</span>
+                <span>₹<span th:text="${#numbers.formatDecimal(cart.subtotal, 1, 2)}">0.00</span></span>
+            </div>
+
+            <div class="summary-row">
+                <span>Taxes &amp; GST (5%):</span>
+                <span>₹<span th:text="${#numbers.formatDecimal(cart.taxAmount, 1, 2)}">0.00</span></span>
+            </div>
+
+            <div class="summary-row">
+                <span>Delivery Partner Fee:</span>
+                <span th:if="${cart.deliveryFee == 0.0}" style="color: var(--success); font-weight: 700;">FREE</span>
+                <span th:unless="${cart.deliveryFee == 0.0}">₹<span th:text="${#numbers.formatDecimal(cart.deliveryFee, 1, 2)}">40.00</span></span>
+            </div>
+
+            <div th:if="${cart.discountAmount > 0}" class="summary-row" style="color: var(--success); font-weight: 700;">
+                <span>Coupon Discount:</span>
+                <span>&minus; ₹<span th:text="${#numbers.formatDecimal(cart.discountAmount, 1, 2)}">0.00</span></span>
+            </div>
+
+            <!-- Grand Total -->
+            <div class="summary-row total">
+                <span>To Pay:</span>
+                <span style="color: var(--primary);">₹<span th:text="${#numbers.formatDecimal(cart.grandTotal, 1, 2)}">0.00</span></span>
+            </div>
+
+            <!-- Proceed Button -->
+            <div style="margin-top: 24px;">
+                <a th:if="${!cart.hasUnavailableItems()}" th:href="@{/checkout}" class="btn btn-primary btn-block btn-lg">
+                    Proceed to Checkout &rarr;
+                </a>
+                <button th:if="${cart.hasUnavailableItems()}" disabled class="btn btn-secondary btn-block btn-lg" style="opacity: 0.6; cursor: not-allowed;">
+                    Cannot Checkout with Out of Stock Items
+                </button>
+            </div>
+
+            <div style="margin-top: 14px; text-align: center; font-size: 0.8rem; color: #94a3b8;">
+                🛡️ Guaranteed Safe &amp; Secure Checkout
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
