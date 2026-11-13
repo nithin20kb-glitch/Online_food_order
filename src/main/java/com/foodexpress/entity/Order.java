@@ -65,6 +65,9 @@ public class Order {
     @Column(name = "payment_status", nullable = false, length = 30)
     private String paymentStatus; // PAID, PENDING, REFUNDED
 
+    @Column(name = "transaction_id", length = 80)
+    private String transactionId;
+
     @Column(name = "order_status", nullable = false, length = 40)
     private String orderStatus; // PLACED, ACCEPTED, PREPARING, OUT_FOR_DELIVERY, DELIVERED, REJECTED_REFUNDED
 
@@ -241,6 +244,14 @@ public class Order {
 
     public void setRejectionReason(String rejectionReason) {
         this.rejectionReason = rejectionReason;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
     }
 
     public LocalDateTime getOrderDate() {

@@ -72,8 +72,16 @@ public class OrderService {
         // For COD, payment is pending on delivery; for online methods (UPI, CARD, NET_BANKING), gateway simulation confirms payment
         if ("COD".equalsIgnoreCase(form.getPaymentMethod())) {
             order.setPaymentStatus("PENDING_ON_DELIVERY");
+            order.setTransactionId("COD-" + trackingNumber);
         } else {
             order.setPaymentStatus("PAID");
+            if (form.getTransactionId() != null && !form.getTransactionId().isBlank()) {
+                order.setTransactionId(form.getTransactionId().trim());
+            } else {
+                long timestamp = System.currentTimeMillis() % 1000000;
+                int rand = ThreadLocalRandom.current().nextInt(1000, 9999);
+                order.setTransactionId("TXN-" + form.getPaymentMethod() + "-" + timestamp + rand);
+            }
         }
 
         order.setOrderStatus("PLACED");

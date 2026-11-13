@@ -3,6 +3,18 @@
 
 setlocal
 
+if not defined JAVA_HOME (
+    if exist "C:\Program Files\Java\jdk-21.0.11" (
+        set "JAVA_HOME=C:\Program Files\Java\jdk-21.0.11"
+    ) else if exist "C:\Program Files\Java\latest" (
+        set "JAVA_HOME=C:\Program Files\Java\latest"
+    )
+)
+
+if defined JAVA_HOME (
+    set "PATH=%JAVA_HOME%\bin;%PATH%"
+)
+
 set MAVEN_CMD=mvn
 where mvn >nul 2>&1
 if %ERRORLEVEL% EQU 0 (

@@ -36,6 +36,9 @@ public class CheckoutForm {
     private String cardExpiry = "12/28";
     private String cardCvv = "892";
     private String selectedBank = "HDFC Bank";
+    private String transactionId;
+    private Long savedPaymentMethodId;
+    private boolean savePaymentMethod = false;
 
     public CheckoutForm() {
     }
@@ -150,5 +153,29 @@ public class CheckoutForm {
 
     public void setSelectedBank(String selectedBank) {
         this.selectedBank = selectedBank;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public Long getSavedPaymentMethodId() {
+        return savedPaymentMethodId;
+    }
+
+    public void setSavedPaymentMethodId(Long savedPaymentMethodId) {
+        this.savedPaymentMethodId = savedPaymentMethodId;
+    }
+
+    public boolean isSavePaymentMethod() {
+        return savePaymentMethod;
+    }
+
+    public void setSavePaymentMethod(boolean savePaymentMethod) {
+        this.savePaymentMethod = savePaymentMethod;
     }
 }
